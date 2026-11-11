@@ -1,0 +1,168 @@
+---
+import Base from '../layouts/Base.astro';
+import { iems, meta, removed } from '../lib/data';
+import { PDF_URL, LINKEDIN_URL, AUTHOR } from '../lib/site';
+
+const tally = new Map<string, number>();
+for (const i of iems) for (const m of i.measurers) tally.set(m, (tally.get(m) ?? 0) + 1);
+const measurers = [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<Base
+  title="About and credits · IEM India"
+  description="Who made IEM India, whose measurements it stands on, and what the data cannot tell you."
+>
+  <article class="narrow page">
+    <p class="eyebrow">About</p>
+    <h1>Credits, sources and limits.</h1>
+    <p class="lede">
+      I'm {AUTHOR}. I built this over a Diwali break because choosing a first IEM in India is confusing, and I wanted
+      to see what the measurements say once the marketing is taken away.
+    </p>
+    <p class="cta">
+      <a class="btn" href={PDF_URL}>Read the write-up (PDF)</a>
+      <a class="btn ghost" href={LINKEDIN_URL}>LinkedIn</a>
+      <a class="btn ghost" href="/how">How I did it</a>
+    </p>
+
+    <section>
+      <h2>The people who measured</h2>
+      <p>
+        Every sound score here rests on someone else's careful work. {measurers.length} independent measurers publish
+        their frequency responses on squig.link. Thank you to each of them. The number is how many IEMs on this site
+        use their data.
+      </p>
+      <ul class="measurers">
+        {
+          measurers.map(([m, n]) => (
+            <li>
+              <a href={`https://${m}`} target="_blank" rel="noopener noreferrer">
+                {m}
+              </a>
+              <span>{n}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p>
+        The measurements were compiled by the open-source
+        <a href="https://github.com/PEQHUB/Squig-Rank" target="_blank" rel="noopener noreferrer">Squig-Rank</a> project,
+        which made this possible.
+      </p>
+      <p class="note">{meta.disclaimers[3]}</p>
+    </section>
+
+    <section>
+      <h2>Sources</h2>
+      <p>Each source is labelled as evidence (papers and documents) or data.</p>
+      <ul class="sources">
+        {
+          meta.sources.map((s) => (
+            <li class="card">
+              <span class={`badge ${s.type.startsWith('evidence') ? 'ok' : ''}`}>{s.type}</span>
+              <b>{s.name}</b>
+              <span class="muted">Used for: {s.used_for}.</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="small muted">
+        The Harman in-ear model is from Olive, Welti and Khonsaripour, presented at the Audio Engineering Society in
+        2017 (AES papers 9840 and 9878).
+      </p>
+    </section>
+
+    <section>
+      <h2>What I chose not to collect</h2>
+      <ul class="list">
+        {meta.exclusions.map((e) => <li>{e}</li>)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Limits</h2>
+      <ul class="list">
+        {meta.disclaimers.map((d) => <li>{d}</li>)}
+        <li>
+          {removed.length} IEMs were removed as discontinued. <a href="/how#removed">They are listed, with reasons</a>.
+        </li>
+        <li>Prices and stock were read on {meta.built}. They will have changed. Check the store before you buy.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>No strings</h2>
+      <p>
+        This is not a shop. There are no affiliate links, no sponsors and no tracking beyond basic page analytics from
+        the host. The store links go straight to the product page.
+      </p>
+      <p>
+        Product photos belong to the stores. They are loaded from the store that lists the product, not copied here,
+        and each one is credited beside the photo.
+      </p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(1.5rem, 5vw, 3.5rem);
+  }
+  h1 {
+    font-size: clamp(2rem, 7vw, 3.4rem);
+  }
+  section {
+    margin-top: 3rem;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .measurers {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    columns: 2;
+    column-gap: 1.2rem;
+    font-size: 0.82rem;
+  }
+  .measurers li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--line);
+    break-inside: avoid;
+  }
+  .measurers a {
+    overflow-wrap: anywhere;
+    padding: 0.15rem 0;
+  }
+  .measurers span {
+    color: var(--muted);
+  }
+  .sources {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .sources li {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.8rem 0.9rem;
+    justify-items: start;
+  }
+  .list {
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .measurers {
+      columns: 3;
+      font-size: 0.875rem;
+    }
+  }
+</style>

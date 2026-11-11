@@ -1,0 +1,308 @@
+---
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/instrument-sans/wght.css';
+import '../styles/global.css';
+import { PDF_URL, LINKEDIN_URL, SITE_TITLE, AUTHOR } from '../lib/site';
+import { meta } from '../lib/data';
+
+interface Props {
+  title: string;
+  description: string;
+  /** A full-screen page: no footer, so the content can fill the window. */
+  bare?: boolean;
+}
+const { title, description, bare = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const nav = [
+  { href: '/', label: 'Chart' },
+  { href: '/explore', label: 'Explore' },
+  { href: '/picks', label: 'Quick picks' },
+  { href: '/findings', label: 'Findings' },
+  { href: '/data', label: 'See the data' },
+  { href: '/how', label: 'Method' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f5efe3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15120e" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      (function () {
+        var t = null;
+        try {
+          t = localStorage.getItem('theme');
+        } catch (e) {}
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+        document.documentElement.classList.add('js');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-head">
+      <div class="wrap bar">
+        <a class="logo" href="/" aria-label={`${SITE_TITLE} home`}>
+          <svg viewBox="0 0 40 20" width="34" height="17" aria-hidden="true">
+            <path
+              d="M1 7c6 0 7 1 11 6s7 5 10 1 3-11 7-11 5 9 10 15"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"></path>
+          </svg>
+          <span>IEM India</span>
+        </a>
+        <nav class="wide" aria-label="Main">
+          {
+            nav.map((n) => (
+              <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>
+                {n.label}
+              </a>
+            ))
+          }
+        </nav>
+        <details class="menu">
+          <summary>Menu</summary>
+          <nav aria-label="Main, small screens">
+            {
+              nav.map((n) => (
+                <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>
+                  {n.label}
+                </a>
+              ))
+            }
+          </nav>
+        </details>
+        <button class="theme" type="button" id="theme-toggle" aria-label="Switch between light and dark theme">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    {
+      !bare && (
+    <footer class="site-foot">
+      <svg class="curve" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          d="M0 22 C70 20 110 22 160 34 S250 42 310 40 S385 14 425 9 S475 30 505 40 S565 54 600 57"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          vector-effect="non-scaling-stroke"></path>
+      </svg>
+      <div class="wrap foot-grid">
+        <p>
+          A side project by {AUTHOR}, made over a Diwali break. Not a shop, not sponsored, no affiliate links.
+        </p>
+        <ul>
+          <li><a href={PDF_URL}>Read the write-up (PDF)</a></li>
+          <li><a href={LINKEDIN_URL}>LinkedIn</a></li>
+          <li><a href="/about">Credits and sources</a></li>
+        </ul>
+        <p class="muted small">
+          Data built {meta.built}. Prices and stock change; check the store before you buy. Specs and box contents are
+          as claimed by the store.
+        </p>
+      </div>
+    </footer>
+      )
+    }
+
+    <script is:inline>
+      (function () {
+        var menu = document.querySelector('details.menu');
+        document.addEventListener('click', function (e) {
+          if (menu.open && !menu.contains(e.target)) menu.open = false;
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && menu.open) {
+            menu.open = false;
+            menu.querySelector('summary').focus();
+          }
+        });
+      })();
+      document.getElementById('theme-toggle').addEventListener('click', function () {
+        var el = document.documentElement;
+        var next = el.dataset.theme === 'dark' ? 'light' : 'dark';
+        el.dataset.theme = next;
+        try {
+          localStorage.setItem('theme', next);
+        } catch (e) {}
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 0.5rem;
+    top: -4rem;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    z-index: 100;
+  }
+  .skip:focus {
+    top: 0.5rem;
+  }
+  .site-head {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 3.4rem;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--ink);
+    text-decoration: none;
+    margin-right: auto;
+    white-space: nowrap;
+    min-height: 2.75rem;
+  }
+  .logo svg {
+    color: var(--accent);
+  }
+  nav.wide {
+    display: none;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .menu {
+    position: relative;
+  }
+  .menu summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .menu[open] summary {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+  .menu nav {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    display: grid;
+    min-width: 12rem;
+    padding: 0.4rem;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+  }
+  .menu nav a[aria-current='page'] {
+    box-shadow: inset 2.5px 0 0 var(--accent);
+  }
+  nav a:hover {
+    color: var(--ink);
+  }
+  nav a[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 0 -2.5px 0 var(--accent);
+  }
+  .theme {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    background: none;
+    border-radius: 999px;
+  }
+  @media (min-width: 900px) {
+    nav.wide {
+      display: flex;
+    }
+    .menu {
+      display: none;
+    }
+  }
+  .site-foot {
+    margin-top: 5rem;
+    padding-bottom: 6rem;
+    color: var(--muted);
+  }
+  .curve {
+    display: block;
+    width: 100%;
+    height: 60px;
+    color: var(--accent);
+  }
+  .foot-grid {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1rem;
+  }
+  .foot-grid ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.2rem;
+  }
+  .foot-grid li a {
+    display: inline-block;
+    padding: 0.4rem 0;
+  }
+  .foot-grid p {
+    margin: 0;
+    max-width: 44rem;
+  }
+</style>

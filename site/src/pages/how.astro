@@ -1,0 +1,991 @@
+---
+import Base from '../layouts/Base.astro';
+import FormulaLab from '../components/FormulaLab.svelte';
+import {
+  BEWARE_LEVEL,
+  DEFAULT_W,
+  iems,
+  inr,
+  margin,
+  median,
+  meta,
+  plugLabel,
+  PROXY_PENALTY,
+  r2Text,
+  rankPlug,
+  removed,
+  VARIANCE,
+} from '../lib/data';
+import { PDF_URL, LINKEDIN_URL } from '../lib/site';
+
+const c = meta.counts;
+const k = meta.key_numbers;
+const measurerCount = new Set(iems.flatMap((i) => i.measurers)).size;
+
+// Measurers per IEM
+const nMax = Math.max(...iems.map((i) => i.n_measurers));
+const hist = Array.from({ length: nMax }, (_, n) => ({
+  n: n + 1,
+  count: iems.filter((i) => i.n_measurers === n + 1).length,
+})).filter((h) => h.count);
+const histMax = Math.max(...hist.map((h) => h.count));
+
+// Margin of error curve
+const curve = Array.from({ length: nMax }, (_, n) => ({ n: n + 1, m: margin(n + 1) }));
+const mTop = Math.ceil(curve[0].m) + 1;
+const cx = (n: number) => ((n - 0.5) / nMax) * 100;
+const cy = (m: number) => 100 - (m / mTop) * 100;
+
+// Agreement: spread against number of measurers
+const spreadRows = iems.filter((i) => i.score_spread != null && i.n_measurers >= 2);
+const sTop = Math.ceil(Math.max(...spreadRows.map((i) => i.score_spread!)) / 5) * 5;
+const sx = (n: number, j: number) => ((n - 2 + 0.2 + ((j * 0.618) % 1) * 0.6) / (nMax - 1)) * 100;
+const sy = (s: number) => 100 - (s / sTop) * 100;
+const spreadByN = Array.from({ length: nMax - 1 }, (_, q) => {
+  const n = q + 2;
+  const v = spreadRows.filter((i) => i.n_measurers === n).map((i) => i.score_spread!);
+  return { n, count: v.length, median: v.length ? median(v) : null };
+}).filter((r) => r.count);
+
+// From the project log (brief, section 6). These are not derivable from data/*.json.
+const effective = [
+  { label: 'Sound', nominal: DEFAULT_W.sound, lo: 74, hi: 78, cls: 'sound' },
+  { label: 'Hardware', nominal: DEFAULT_W.hardware, lo: 16, hi: 25, cls: 'hardware' },
+  { label: 'In the box', nominal: DEFAULT_W.box, lo: 2, hi: 7, cls: 'box' },
+];
+// How many of the default top 20 survive a change of weights, computed from the data.
+const kept = (plug: '3.5mm' | 'Type-C', w: [number, number, number]) =>
+  rankPlug(plug, { sound: w[0], hardware: w[1], box: w[2] })
+    .slice(0, 20)
+    .filter((r) => r.i.rank_default <= 20).length;
+const overlap = (
+  [
+    [80, 15, 5],
+    [70, 20, 10],
+    [50, 35, 15],
+    [34, 33, 33],
+  ] as [number, number, number][]
+).map((w) => ({ w: w.join(' / '), a: kept('3.5mm', w), b: kept('Type-C', w) }));
+const PAGES_READ = 455;
+const DEBATE = { rounds: 2, minutes: 22 };
+const REVIEW_COVERAGE = 'about 10%';
+
+const steps = [
+  ['scope', 'Scope'],
+  ['sound', 'Sound'],
+  ['measurements', 'Measurements'],
+  ['left-out', 'What I left out'],
+  ['reviews', 'Reviews, dropped'],
+  ['claims', 'Store claims'],
+  ['debate', 'The debate'],
+  ['weights', 'Weights'],
+  ['uncertainty', 'Uncertainty'],
+  ['value', 'Value'],
+  ['missing', 'Missing specs'],
+  ['removed', 'Discontinued'],
+  ['pipeline', 'Pipeline'],
+];
+const no = (id: string) => String(steps.findIndex((s) => s[0] === id) + 1).padStart(2, '0');
+---
+
+<Base
+  title="How I did it · IEM India"
+  description="Thirteen decisions behind the IEM India rankings: the papers, the data sources, the formula, and what was thrown away."
+>
+  <div class="progress" aria-hidden="true"></div>
+
+  <header class="narrow top">
+    <p class="eyebrow">Method</p>
+    <h1>How I did it.</h1>
+    <p class="lede">
+      Thirteen decisions, in the order I made them. Some of them are about what to build. More of them are about what
+      to throw away.
+    </p>
+    <ul class="stats">
+      <li><b>{c.listed}</b> IEMs listed</li>
+      <li><b>{c.measured}</b> measured</li>
+      <li><b>{measurerCount}</b> independent measurers</li>
+      <li><b>3</b> Indian stores</li>
+    </ul>
+  </header>
+
+  <div class="layout wrap">
+    <nav class="toc" aria-label="Steps">
+      <ol>
+        {steps.map(([id, label]) => <li><a href={`#${id}`}>{label}</a></li>)}
+      </ol>
+    </nav>
+
+    <div class="story">
+      <section id="scope" class="step reveal">
+        <span class="no">{no('scope')}</span>
+        <h2>Pick a small, honest scope.</h2>
+        <p>{meta.scope.replace('Rs ', '₹')}</p>
+        <div class="split" role="img" aria-label={`${c['3_5mm']} 3.5 mm IEMs and ${c.type_c} Type-C IEMs`}>
+          <span style={`flex:${c['3_5mm']}`}><b>{c['3_5mm']}</b> 3.5 mm</span>
+          <span class="alt" style={`flex:${c.type_c}`}><b>{c.type_c}</b> Type-C</span>
+        </div>
+        <p class="muted small">
+          The two plugs are ranked separately because they are different products at different prices. {c.in_stock} of the
+          {c.listed} were in stock on {meta.built}.
+        </p>
+      </section>
+
+      <section id="sound" class="step reveal">
+        <span class="no">{no('sound')}</span>
+        <h2>Score sound with one published model.</h2>
+        <p>
+          Sound is the Harman in-ear predicted preference model and nothing else. It is a peer-reviewed formula that
+          predicts how much listeners will like an IEM's tuning from its measured frequency response.
+        </p>
+        <p class="formula mono">{meta.formulas.harman_score}</p>
+        <p>Three things cost points: an uneven response, a tilt away from the target, and plain distance from it. Try it.</p>
+        <FormulaLab client:visible />
+        <p class="note teal">
+          <strong>One model, one caveat.</strong> In the Harman research, {k.harman_listener_split}. That group gets
+          advice, not a separate ranking: favour IEMs with a slightly positive tilt.
+        </p>
+      </section>
+
+      <section id="measurements" class="step reveal">
+        <span class="no">{no('measurements')}</span>
+        <h2>Use measurements other people already made.</h2>
+        <p>
+          The frequency responses come from public squig.link databases, compiled by the open-source Squig-Rank
+          project. All of them use 711-type couplers. I recompute the score from three numbers per measurement:
+          unevenness, slope and mean error.
+        </p>
+        <ol class="flow">
+          <li><b>Each measurer</b><span>may measure one IEM several times. Take the median.</span></li>
+          <li><b>Across measurers</b><span>take the median again. One loud outlier cannot swing the score.</span></li>
+          <li><b>One score per IEM</b><span>with a count of who measured it, and credit.</span></li>
+        </ol>
+        <h3>How many people measured each IEM</h3>
+        <table class="bars">
+          <caption class="sr-only">Number of IEMs by number of independent measurers</caption>
+          <thead class="sr-only"><tr><th>Measurers</th><th>IEMs</th></tr></thead>
+          <tbody>
+            {
+              hist.map((h) => (
+                <tr>
+                  <th scope="row">{h.n}</th>
+                  <td>
+                    <i style={`width:${(h.count / histMax) * 100}%`} />
+                    <span>{h.count}</span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <p class="muted small">
+          Most IEMs rest on one or two measurers. That is why step {no('uncertainty')} exists. A further {c.buyer_beware} have
+          none.
+        </p>
+      </section>
+
+      <section id="left-out" class="step reveal">
+        <span class="no">{no('left-out')}</span>
+        <h2>Leave out the sources that said no.</h2>
+        <p>Some of the best-known sources are missing on purpose. Each one either keeps its data private or asks not to be collected.</p>
+        <ul class="excl">
+          {
+            meta.exclusions.slice(0, 5).map((e) => {
+              const [name, why] = e.split(/ \((.*)\)$/);
+              return (
+                <li class="card">
+                  <b>{name}</b>
+                  <span>{why}</span>
+                </li>
+              );
+            })
+          }
+        </ul>
+        <blockquote>I respected every site's wishes.</blockquote>
+      </section>
+
+      <section id="reviews" class="step reveal">
+        <span class="no">{no('reviews')}</span>
+        <h2>Build a review pipeline. Then delete it.</h2>
+        <ol class="funnel">
+          <li>
+            <b>Store reviews</b>
+            <span>I built a fake-review detector: verified-buyer weighting, duplicate text, bursts, imported reviews.</span>
+          </li>
+          <li>
+            <b>Enthusiast opinion</b>
+            <span>Reddit now requires approval for API access and forbids research outside its programme.</span>
+          </li>
+          <li>
+            <b>Expert lists and forums</b>
+            <span>They covered only {REVIEW_COVERAGE} of the IEMs. Opinions could not be scored fairly.</span>
+          </li>
+          <li class="end">
+            <b>Decision</b>
+            <span>Measurements plus store facts only. No star ratings anywhere on this site.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section id="claims" class="step reveal">
+        <span class="no">{no('claims')}</span>
+        <h2>Take store claims as claims.</h2>
+        <p>
+          If a store says an IEM has a "woody sound", that is recorded as a claim and never verified. The same goes for
+          specs and box contents. Everywhere you see them on this site, they carry this label:
+        </p>
+        <p><span class="claimed">as claimed by the store</span></p>
+        <p class="muted small">{meta.disclaimers[0]}</p>
+      </section>
+
+      <section id="debate" class="step reveal">
+        <span class="no">{no('debate')}</span>
+        <h2>Let two AI agents argue the formula out.</h2>
+        <p>
+          I did not want to hand-pick weights and call it science. So one agent proposed a scoring formula and a second
+          one attacked it. Both could use only the data. It converged in {DEBATE.rounds} rounds, about {DEBATE.minutes} minutes.
+        </p>
+        <div class="debate">
+          <p class="round">Round 1</p>
+          <div class="say pro"><b>Proposer</b>Here is a full scoring spec: sound, hardware, box, a discontinued rule and a value metric.</div>
+          <div class="say con">
+            <b>Critic</b>
+            Three things block this.
+            <ol>
+              <li>Your "no mic" flag is a store-formatting artifact. Stores disagree with each other about the same IEM.</li>
+              <li>Your discontinued rule is circular. Sold-out rows vouch for each other.</li>
+              <li>Your "value" metric is secretly a price ranking.</li>
+            </ol>
+          </div>
+          <p class="round">Round 2</p>
+          <div class="say pro">
+            <b>Proposer</b>
+            Fixed. An unstated mic is unknown, not "no". Discontinued now needs a real signal. Value is renamed and limited
+            to good, in-stock IEMs.
+          </div>
+          <div class="say con"><b>Critic</b>Nothing blocking remains. Ship it.</div>
+        </div>
+        <p class="muted small">The exchange above is condensed. The three fixes are real and each one changed the final formula.</p>
+      </section>
+
+      <section id="weights" class="step reveal">
+        <span class="no">{no('weights')}</span>
+        <h2>Set default weights. Then check what they really do.</h2>
+        <p>
+          The defaults are sound {DEFAULT_W.sound}, hardware {DEFAULT_W.hardware}, in the box {DEFAULT_W.box}. But a weight is
+          not the same as influence. Sound scores vary a lot between IEMs; box contents barely do.
+        </p>
+        <table class="eff">
+          <caption class="sr-only">Nominal weight against effective influence on the ranking</caption>
+          <thead><tr><th>Part</th><th>Weight</th><th>Real influence on the ranking</th></tr></thead>
+          <tbody>
+            {
+              effective.map((e) => (
+                <tr>
+                  <th scope="row">{e.label}</th>
+                  <td>{e.nominal}</td>
+                  <td>
+                    <span class="track">
+                      <i class="nom" style={`left:${e.nominal}%`} />
+                      <i class={`range ${e.cls}`} style={`left:${e.lo}%;width:${e.hi - e.lo}%`} />
+                    </span>
+                    <span class="small">{e.lo} to {e.hi}%</span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <p class="muted small">The thin line is the weight. The thick bar is the share of the ranking it actually drives.</p>
+        <p>
+          Sensible changes to the weights barely change the top 20. That is itself a finding. It only breaks when sound
+          stops being the main ingredient.
+        </p>
+        <table class="keep">
+          <caption class="sr-only">How many of the default top 20 remain under other weights</caption>
+          <thead><tr><th>Sound / hardware / box</th><th>3.5 mm</th><th>Type-C</th></tr></thead>
+          <tbody>
+            {overlap.map((o) => <tr><th scope="row">{o.w}</th><td>{o.a} of 20 stay</td><td>{o.b} of 20 stay</td></tr>)}
+          </tbody>
+        </table>
+        <p><a href="/explore">Try it with the sliders</a>.</p>
+      </section>
+
+      <section id="uncertainty" class="step reveal">
+        <span class="no">{no('uncertainty')}</span>
+        <h2>Build the doubt into the score.</h2>
+        <p>
+          Independent measurers disagree on the same IEM by a standard deviation of {k.between_measurer_sd} points. So every
+          score is reduced by a margin of error, √({VARIANCE} ÷ measurers). One measurer costs {margin(1).toFixed(1)} points.
+          Four cost {margin(4).toFixed(1)}.
+        </p>
+        <figure>
+          <div class="mini paper" role="img" aria-label={`Margin of error falls from ${margin(1).toFixed(1)} points with one measurer to ${margin(nMax).toFixed(1)} with ${nMax}.`}>
+            <svg width="100%" height="100%" aria-hidden="true">
+              {curve.slice(1).map((p, q) => <line class="ln" x1={`${cx(curve[q].n)}%`} y1={`${cy(curve[q].m)}%`} x2={`${cx(p.n)}%`} y2={`${cy(p.m)}%`} />)}
+              {curve.map((p) => <circle class="dotc" cx={`${cx(p.n)}%`} cy={`${cy(p.m)}%`} r="4.5" />)}
+            </svg>
+            {curve.filter((p) => [1, 2, 4, nMax].includes(p.n)).map((p) => <span class="lbl" style={`left:${cx(p.n)}%;top:${cy(p.m)}%`}>−{p.m.toFixed(1)}</span>)}
+          </div>
+          <div class="xs" aria-hidden="true">{curve.map((p) => <span>{p.n}</span>)}</div>
+          <figcaption>Points taken off, by number of independent measurers.</figcaption>
+        </figure>
+
+        <h3>Do more measurers agree more?</h3>
+        <figure>
+          <div class="mini tall paper" role="img" aria-label={`Spread between measurers for ${spreadRows.length} IEMs with two or more measurers. A table follows.`}>
+            <svg width="100%" height="100%" aria-hidden="true">
+              {spreadRows.map((i, j) => <circle class="sp" cx={`${sx(i.n_measurers, j)}%`} cy={`${sy(i.score_spread!)}%`} r="3.2" />)}
+              {spreadByN.map((r) => <line class="med" x1={`${((r.n - 2 + 0.1) / (nMax - 1)) * 100}%`} x2={`${((r.n - 2 + 0.9) / (nMax - 1)) * 100}%`} y1={`${sy(r.median!)}%`} y2={`${sy(r.median!)}%`} />)}
+            </svg>
+            <span class="lbl ax" style="left:0;top:0">{sTop} points apart</span>
+            <span class="lbl ax" style="left:0;top:100%">0</span>
+          </div>
+          <div class="xs from2" aria-hidden="true">{spreadByN.length && Array.from({ length: nMax - 1 }, (_, q) => <span>{q + 2}</span>)}</div>
+          <figcaption>
+            Each dot is one IEM: the gap between its highest and lowest measurer, by number of measurers. The bar is the
+            median. The gap widens as more people measure, because there are more chances to disagree. That is why the
+            score uses the median, and why a single measurement earns less trust, not more.
+          </figcaption>
+          <details>
+            <summary>Show this chart as a table</summary>
+            <table>
+              <thead><tr><th>Measurers</th><th>IEMs</th><th>Median spread</th></tr></thead>
+              <tbody>
+                {spreadByN.map((r) => <tr><td>{r.n}</td><td>{r.count}</td><td>{r.median!.toFixed(1)}</td></tr>)}
+              </tbody>
+            </table>
+          </details>
+        </figure>
+        <ul class="plain">
+          <li><span class="badge proxy">Proxy</span> A collab edition where only the base model is measured loses {PROXY_PENALTY} more points.</li>
+          <li>
+            <span class="badge warn">Buyer beware</span> An IEM with no measurement is scored at the bottom-quarter level of measured
+            IEMs, {BEWARE_LEVEL}. Unknown should not outrank known.
+          </li>
+          <li><span class="badge">Noise</span> {meta.disclaimers[1]}</li>
+        </ul>
+      </section>
+
+      <section id="value" class="step reveal">
+        <span class="no">{no('value')}</span>
+        <h2>Refuse to fit a curve that is not there.</h2>
+        <p>
+          The usual way to find value is to fit a price curve and see who beats it. Here the R² of Harman score against
+          log price is {r2Text('3.5mm')} for 3.5 mm and {r2Text('Type-C')} for Type-C. There is no curve to beat.
+        </p>
+        <div class="r2" role="img" aria-label="R squared is almost zero for both plug types">
+          <span><b>{r2Text('3.5mm')}</b>R², 3.5 mm</span>
+          <span><b>{r2Text('Type-C')}</b>R², Type-C</span>
+          <span class="mutedbox"><b>1.0</b>if price fully predicted sound</span>
+        </div>
+        <p>So value is simple and says what it is:</p>
+        <p class="formula mono">{meta.formulas.value_score}</p>
+      </section>
+
+      <section id="missing" class="step reveal">
+        <span class="no">{no('missing')}</span>
+        <h2>Do not punish a store for writing less.</h2>
+        <p>
+          Some stores list every accessory. Others write two lines. If a missing spec counted as "no", the product would
+          sink because of the store's copywriting. So a missing item gets the average rate for that item, not zero.
+        </p>
+        <ul class="tri">
+          <li><b>Yes</b><span>full points</span></li>
+          <li><b>No</b><span>zero</span></li>
+          <li class="q"><b>Not stated</b><span>the average rate</span></li>
+        </ul>
+      </section>
+
+      <section id="removed" class="step reveal">
+        <span class="no">{no('removed')}</span>
+        <h2>Remove an IEM only on a real signal.</h2>
+        <p>
+          Sold out is not the same as discontinued. An IEM is removed only if there is a clearance tag or a newer version
+          in stock. {removed.length} were removed. Everything else that is sold out stays, with a flag.
+        </p>
+        <details class="removed">
+          <summary>See the {removed.length} removed IEMs</summary>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>IEM</th><th>Plug</th><th>Why</th><th>Harman</th><th>Last price</th></tr></thead>
+              <tbody>
+                {
+                  removed.map((r) => (
+                    <tr>
+                      <td>{r.name}</td>
+                      <td>{plugLabel(r.plug)}</td>
+                      <td>{r.availability_note}</td>
+                      <td>{r.harman_score ?? 'n/a'}</td>
+                      <td>{inr(r.price_inr)}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </details>
+        <p class="muted small">{meta.disclaimers[2]}</p>
+      </section>
+
+      <section id="pipeline" class="step reveal">
+        <span class="no">{no('pipeline')}</span>
+        <h2>Make every number reproducible.</h2>
+        <ol class="flow">
+          <li><b>Collect politely</b><span>Rate-limited requests to public store feeds from Headphone Zone, The Audio Store and Concept Kart.</span></li>
+          <li><b>Read the pages</b><span>{PAGES_READ} product pages read by parallel AI agents for specs and box contents.</span></li>
+          <li><b>Match and score</b><span>Each product is matched to its measurements, then scored by script.</span></li>
+          <li><b>Publish</b><span>Three JSON files. This site reads them and nothing else.</span></li>
+        </ol>
+        <p class="note">
+          {meta.disclaimers[3]}
+        </p>
+        <p class="cta">
+          <a class="btn" href="/explore">Explore the rankings</a>
+          <a class="btn ghost" href={PDF_URL}>Read the write-up (PDF)</a>
+          <a class="btn ghost" href={LINKEDIN_URL}>LinkedIn</a>
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var steps = document.querySelectorAll('.step');
+      var links = document.querySelectorAll('.toc a');
+      if (!('IntersectionObserver' in window)) return;
+      var show = new IntersectionObserver(
+        function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) {
+              e.target.classList.add('in');
+              show.unobserve(e.target);
+            }
+          });
+        },
+        { rootMargin: '0px 0px -12% 0px' },
+      );
+      var spy = new IntersectionObserver(
+        function (es) {
+          es.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            links.forEach(function (a) {
+              if (a.getAttribute('href') === '#' + e.target.id) a.setAttribute('aria-current', 'step');
+              else a.removeAttribute('aria-current');
+            });
+          });
+        },
+        { rootMargin: '-30% 0px -60% 0px' },
+      );
+      steps.forEach(function (s) {
+        show.observe(s);
+        spy.observe(s);
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 50;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      animation: grow linear both;
+      animation-timeline: scroll(root);
+    }
+    @keyframes grow {
+      to {
+        transform: scaleX(1);
+      }
+    }
+  }
+  .top {
+    padding-top: clamp(1.5rem, 5vw, 3.5rem);
+  }
+  .stats {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .stats b {
+    display: block;
+    font-family: var(--display);
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .layout {
+    display: grid;
+    margin-top: 2rem;
+  }
+  .toc {
+    display: none;
+  }
+  .story {
+    width: min(100%, 720px);
+    margin-inline: auto;
+    min-width: 0;
+  }
+  .step {
+    position: relative;
+    padding: 2.5rem 0 2.5rem 1.4rem;
+    border-left: 2px solid var(--line);
+  }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 2.9rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+  .no {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    letter-spacing: 0.05em;
+  }
+  .step h2 {
+    font-size: clamp(1.45rem, 4.6vw, 2rem);
+    margin-top: 0.2rem;
+  }
+  .step h3 {
+    margin-top: 1.6rem;
+  }
+  :global(.js) .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  :global(.js) .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .formula {
+    padding: 0.8rem 0.9rem;
+    border: 1px dashed var(--line);
+    border-radius: var(--r);
+    background: var(--surface);
+    overflow-wrap: anywhere;
+  }
+  .split {
+    display: flex;
+    gap: 3px;
+    margin: 1rem 0 0.7rem;
+  }
+  .split span {
+    padding: 0.6rem 0.7rem;
+    background: var(--accent-soft);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    min-width: 5.2rem;
+  }
+  .split .alt {
+    background: var(--teal-soft);
+  }
+  .split b {
+    display: block;
+    font-family: var(--display);
+    font-size: 1.5rem;
+    line-height: 1.1;
+  }
+  .flow,
+  .funnel {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    counter-reset: f;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .flow li,
+  .funnel li {
+    counter-increment: f;
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0 0.6rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--surface);
+  }
+  .flow li::before,
+  .funnel li::before {
+    content: counter(f);
+    grid-row: span 2;
+    font-family: var(--display);
+    font-size: 1.4rem;
+    color: var(--accent-ink);
+  }
+  .flow span,
+  .funnel span {
+    grid-column: 2;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .funnel li:not(.end) b {
+    text-decoration: line-through;
+    text-decoration-color: var(--warn);
+    text-decoration-thickness: 2px;
+  }
+  .funnel li.end {
+    border-color: var(--teal);
+    background: var(--teal-soft);
+  }
+  .funnel li.end::before {
+    content: '→';
+    color: var(--teal);
+  }
+  .funnel li:nth-child(2) {
+    margin-inline: 0 4%;
+  }
+  .funnel li:nth-child(3) {
+    margin-inline: 0 8%;
+  }
+  .bars th {
+    width: 2rem;
+    border: 0;
+    padding: 0.2rem 0;
+  }
+  .bars td {
+    border: 0;
+    padding: 0.2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+  .bars i {
+    display: block;
+    height: 0.9rem;
+    min-width: 2px;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+  .excl {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .excl li {
+    padding: 0.7rem 0.9rem;
+    display: grid;
+  }
+  .excl span {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  blockquote {
+    margin: 1.4rem 0 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--accent);
+    font-family: var(--display);
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    line-height: 1.15;
+  }
+  .claimed {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px dashed var(--muted);
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+  }
+  .debate {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.2rem 0;
+  }
+  .round {
+    margin: 0.6rem 0 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+  .say {
+    max-width: 88%;
+    padding: 0.7rem 0.9rem;
+    border-radius: 14px;
+    font-size: 0.95rem;
+  }
+  .say b {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.15rem;
+  }
+  .say.pro {
+    background: var(--accent-soft);
+    border-bottom-left-radius: 3px;
+    justify-self: start;
+  }
+  .say.pro b {
+    color: var(--accent-ink);
+  }
+  .say.con {
+    background: var(--teal-soft);
+    border-bottom-right-radius: 3px;
+    justify-self: end;
+  }
+  .say.con b {
+    color: var(--teal);
+  }
+  .say ol {
+    margin: 0.4rem 0 0;
+    padding-left: 1.2rem;
+  }
+  .keep {
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  .keep tbody th {
+    font-weight: 500;
+  }
+  .eff td:nth-child(2) {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    width: 3.5rem;
+  }
+  .eff th[scope='row'] {
+    width: 5.5rem;
+  }
+  .track {
+    display: block;
+    position: relative;
+    height: 1rem;
+    background: var(--grid);
+    border-radius: 4px;
+    margin-bottom: 0.15rem;
+  }
+  .track .nom {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--ink);
+  }
+  .track .range {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 4px;
+    background: var(--accent);
+    min-width: 6px;
+  }
+  .track .range.hardware {
+    background: repeating-linear-gradient(135deg, var(--teal) 0 4px, color-mix(in srgb, var(--teal) 55%, transparent) 4px 7px);
+  }
+  .track .range.box {
+    background: var(--muted);
+  }
+  figure {
+    margin: 1.2rem 0;
+  }
+  figcaption {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+  .mini {
+    position: relative;
+    height: 190px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .mini.tall {
+    height: 260px;
+  }
+  .mini svg {
+    display: block;
+    overflow: visible;
+  }
+  .ln {
+    stroke: var(--accent-ink);
+    stroke-width: 2;
+  }
+  .dotc {
+    fill: var(--accent);
+    stroke: var(--accent-ink);
+  }
+  .sp {
+    fill: var(--dot);
+    opacity: 0.7;
+  }
+  .med {
+    stroke: var(--accent-ink);
+    stroke-width: 3;
+  }
+  .lbl {
+    position: absolute;
+    transform: translate(-30%, -150%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    padding: 0 0.25rem;
+    border-radius: 3px;
+  }
+  .lbl.ax {
+    transform: translate(4px, 4px);
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .lbl.ax:last-of-type {
+    transform: translate(4px, -120%);
+  }
+  .xs {
+    display: flex;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+  .xs span {
+    flex: 1;
+    text-align: center;
+  }
+  .plain {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .plain .badge {
+    margin-right: 0.3rem;
+  }
+  .r2 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .r2 span {
+    padding: 0.7rem;
+    border-radius: var(--r);
+    background: var(--accent-soft);
+    font-size: 0.8rem;
+  }
+  .r2 .mutedbox {
+    background: none;
+    border: 1px dashed var(--line);
+    color: var(--muted);
+  }
+  .r2 b {
+    display: block;
+    font-family: var(--display);
+    font-size: 1.6rem;
+    line-height: 1.1;
+  }
+  .tri {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .tri li {
+    padding: 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--surface);
+    font-size: 0.85rem;
+  }
+  .tri li.q {
+    border: 2px dashed var(--accent-ink);
+  }
+  .tri b {
+    display: block;
+  }
+  .tri span {
+    color: var(--muted);
+  }
+  summary {
+    cursor: pointer;
+    padding: 0.5rem 0;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .scroll {
+    overflow-x: auto;
+  }
+  .removed table {
+    font-size: 0.85rem;
+    min-width: 30rem;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 560px) {
+    .stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .layout {
+      grid-template-columns: 12rem 1fr;
+      gap: 3rem;
+    }
+    .toc {
+      display: block;
+      position: sticky;
+      top: 5rem;
+      align-self: start;
+      font-size: 0.875rem;
+    }
+    .toc ol {
+      list-style: decimal-leading-zero;
+      padding-left: 1.8rem;
+      margin: 0;
+      color: var(--muted);
+    }
+    .toc a {
+      display: block;
+      padding: 0.25rem 0;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .toc a:hover {
+      color: var(--ink);
+    }
+    .toc a[aria-current] {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .story {
+      margin-inline: 0;
+    }
+  }
+</style>

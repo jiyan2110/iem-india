@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Picker from '../components/Picker.svelte';
+import Overlays from '../components/Overlays.svelte';
+import { meta } from '../lib/data';
+---
+
+<Base
+  title="Quick picks · IEM India"
+  description="Three questions, three picks: the best-scoring in-stock, measured IEMs for your plug, budget and taste."
+>
+  <section class="wrap head">
+    <p class="eyebrow">Short on time</p>
+    <h1>Three questions, three picks.</h1>
+    <p class="lede">
+      Answer three things and get the three highest-scoring IEMs that are in stock and have been measured. Scores use
+      the default weights: {meta.weights_default.sound} sound, {meta.weights_default.hardware} hardware,
+      {meta.weights_default.box} box.
+    </p>
+  </section>
+  <section class="wrap">
+    <Picker client:load />
+    <p class="note small after">
+      <strong>Read scores as fuzzy.</strong>{' '}
+      {meta.disclaimers[1]} Want more than three? <a href="/explore">Explore the full ranking</a> or
+      <a href="/">see them all on the chart</a>.
+    </p>
+  </section>
+  <Overlays client:load />
+</Base>
+
+<style>
+  .head {
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+    margin-bottom: 1.2rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 6.5vw, 3.2rem);
+  }
+  .after {
+    margin-top: 1.5rem;
+    max-width: 46rem;
+  }
+</style>

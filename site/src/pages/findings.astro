@@ -1,0 +1,266 @@
+---
+import Base from '../layouts/Base.astro';
+import { bandStats, headlinePair, inr, meta, PLUGS, plugLabel, r2Text, DEFAULT_W } from '../lib/data';
+import { PDF_URL, LINKEDIN_URL } from '../lib/site';
+
+const c = meta.counts;
+const bands = PLUGS.map((p) => ({ plug: p, rows: bandStats(p) }));
+const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
+---
+
+<Base
+  title="Findings · IEM India"
+  description="What the chart shows in plain words: price barely predicts sound, tone is taste, and what the data cannot tell you."
+>
+  <article class="wrap page">
+    <p class="eyebrow">Findings</p>
+    <h1>What the chart says, in words.</h1>
+    <p class="lede">
+      The <a href="/">chart</a> lets you look for yourself. This page is the short version of what I saw in it.
+    </p>
+
+    <section class="block">
+      <p class="eyebrow">1 · Does paying more help?</p>
+      <h2>Price barely predicts sound.</h2>
+      <div class="read">
+        <p>
+          If money bought sound, the dots would climb as they get pricier. They do not. For 3.5 mm IEMs the link
+          between sound score and price has an R² of {r2Text('3.5mm')}. For Type-C it is {r2Text('Type-C')}. Both are
+          close to zero.
+        </p>
+        <ul class="pairs">
+          {
+            pairs.map((p) => (
+              <li class="card">
+                <span class="eyebrow">{plugLabel(p.plug)}</span>
+                <p>
+                  <strong>{p.cheap.name}</strong> costs {inr(p.cheap.price_inr)} and scores{' '}
+                  <strong>{p.cheap.harman_score!.toFixed(1)}</strong>. <strong>{p.pricey.name}</strong> costs{' '}
+                  {inr(p.pricey.price_inr)} and scores <strong>{p.pricey.harman_score!.toFixed(1)}</strong>.
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+        <p><a class="btn sm ghost" href="/">See price against sound on the chart</a></p>
+      </div>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">2 · By budget</p>
+      <h2>The typical score is flat across budgets.</h2>
+      <div class="bands">
+        <table>
+          <caption class="sr-only">Median Harman score by price band and plug type</caption>
+          <thead>
+            <tr>
+              <th scope="col">Price band</th>
+              {bands.map((b) => <th scope="col">{plugLabel(b.plug)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              bands[0].rows.map((r, k) => (
+                <tr>
+                  <th scope="row">{r.label}</th>
+                  {bands.map((b) => (
+                    <td>
+                      <span class="big">{b.rows[k].median?.toFixed(1) ?? 'n/a'}</span>
+                      <span class="muted small">median of {b.rows[k].n}</span>
+                      <span class="meter" aria-hidden="true">
+                        <i style={`width:${b.rows[k].median ?? 0}%`} />
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <p class="muted small">
+          Median Harman score of measured IEMs in each band. The gaps between bands are smaller than the measurement
+          noise.
+        </p>
+        <p class="note small">
+          <strong>Read scores as fuzzy.</strong>{' '}
+          {meta.disclaimers[1]}
+        </p>
+      </div>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">3 · Find your sound</p>
+      <h2>Warm or bright is taste. Distance from the target is not.</h2>
+      <div class="read">
+        <p>
+          Tone says which way an IEM leans from the Harman target. Warmer means more bass. Brighter means more treble.
+          The sound score falls away on both sides.
+        </p>
+        <p class="note teal">
+          <strong>Not everyone likes the target.</strong> In the Harman research, {meta.key_numbers.harman_listener_split}.
+          If that sounds like you, favour IEMs with a slightly positive tilt.
+        </p>
+        <p><a class="btn sm ghost" href="/#x=tilt">See warm against bright on the chart</a></p>
+      </div>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">4 · How the score works</p>
+      <h2>One number, three parts, all adjustable.</h2>
+      <ul class="three">
+        <li class="card">
+          <span class="w">{DEFAULT_W.sound}</span>
+          <h3>Sound</h3>
+          <p>The Harman in-ear model predicts how much listeners will like the tuning, from the measured frequency response.</p>
+        </li>
+        <li class="card">
+          <span class="w">{DEFAULT_W.hardware}</span>
+          <h3>Hardware</h3>
+          <p>Detachable cable, microphone, and whether a phone can drive it. As claimed by the store.</p>
+        </li>
+        <li class="card">
+          <span class="w">{DEFAULT_W.box}</span>
+          <h3>In the box</h3>
+          <p>Eartips, a case, a cable, an adapter. As claimed by the store.</p>
+        </li>
+      </ul>
+      <p class="cta">
+        <a class="btn" href="/explore">Explore and set your own weights</a>
+        <a class="btn ghost" href="/how">See how I did it</a>
+      </p>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">5 · What the data cannot tell you</p>
+      <h2>The honest bit.</h2>
+      <ul class="facts">
+        <li><b>{c.measured}</b> of {c.listed} IEMs are measured by at least one independent person.</li>
+        <li><b>{c.proxy}</b> are collab editions where only the base model is measured. They are marked Proxy and lose points.</li>
+        <li><b>{c.buyer_beware}</b> have no measurement at all. They are marked Buyer beware, and are missing from any chart that needs a sound score.</li>
+        <li><b>{c.in_stock}</b> were in stock when the data was built on {meta.built}. Sold-out ones stay listed, with a flag.</li>
+        <li><b>{c.removed_discontinued}</b> were removed as discontinued. <a href="/how#removed">They are listed here</a>.</li>
+      </ul>
+      <p class="cta">
+        <a class="btn ghost" href="/data">See and download the data</a>
+        <a class="btn ghost" href={PDF_URL}>Read the write-up (PDF)</a>
+        <a class="btn ghost" href={LINKEDIN_URL}>Find me on LinkedIn</a>
+      </p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(1.5rem, 5vw, 3.5rem);
+  }
+  h1 {
+    font-size: clamp(2rem, 7vw, 3.4rem);
+  }
+  .block {
+    margin-top: clamp(3rem, 8vw, 5rem);
+  }
+  .read,
+  .bands {
+    display: grid;
+    gap: 1rem;
+    max-width: 46rem;
+  }
+  .read p,
+  .bands p {
+    margin: 0;
+  }
+  .pairs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .pairs li {
+    padding: 0.8rem 1rem;
+  }
+  .bands td,
+  .bands th {
+    padding: 0.7rem 0.8rem 0.7rem 0;
+  }
+  .bands .big {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+  .bands .small {
+    white-space: nowrap;
+  }
+  .meter {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--grid);
+    margin-top: 0.3rem;
+    max-width: 14rem;
+  }
+  .meter i {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  .three {
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0;
+    display: grid;
+    gap: 0.8rem;
+  }
+  .three li {
+    padding: 1rem 1.1rem;
+  }
+  .three p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .three h3 {
+    margin: 0 0 0.3rem;
+  }
+  .w {
+    float: right;
+    font-family: var(--display);
+    font-size: 2.2rem;
+    line-height: 1;
+    color: var(--accent-ink);
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+  }
+  .facts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 46rem;
+  }
+  .facts li {
+    padding: 0.7rem 0 0.7rem 4.2rem;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .facts b {
+    position: absolute;
+    left: 0;
+    top: 0.45rem;
+    font-family: var(--display);
+    font-size: 1.6rem;
+  }
+  @media (min-width: 760px) {
+    .three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .pairs {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
