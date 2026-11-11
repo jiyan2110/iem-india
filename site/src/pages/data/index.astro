@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import DataTable from '../../components/DataTable.svelte';
+import Overlays from '../../components/Overlays.svelte';
+import { iems, meta } from '../../lib/data';
+import { COLUMNS } from '../../lib/table';
+
+const measurers = new Set(iems.flatMap((i) => i.measurers)).size;
+---
+
+<Base
+  title="See the data · IEM India"
+  description={`The full table behind the chart: ${meta.counts.listed} IEMs, every score and store fact, free to browse and download.`}
+>
+  <section class="wrap head">
+    <p class="eyebrow">Open data</p>
+    <h1>The table behind the chart.</h1>
+    <p class="lede">
+      Every dot on the chart is one row here: {meta.counts.listed} IEMs, pulled together from {measurers} independent
+      measurers and three stores into one place. Sort it, search it, or take it away and explore on your own.
+    </p>
+    <ul class="dl">
+      <li>
+        <a class="btn" href="/data/iems.csv" download="iem-india.csv">Download CSV</a>
+        <span class="muted small">{iems.length} rows, {COLUMNS.length} columns. Opens in Excel or Google Sheets.</span>
+      </li>
+      <li>
+        <a class="btn ghost" href="/data/iems.json" download="iem-india.json">Download JSON</a>
+        <span class="muted small">The same records, nested, as the site reads them.</span>
+      </li>
+      <li>
+        <a class="btn ghost" href="/data/meta.json" download="iem-india-meta.json">Method file</a>
+        <span class="muted small">Formulas, weights, sources and limits.</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="wrap">
+    <DataTable client:load />
+    <p class="muted small hint">
+      Showing the main columns. The CSV has all {COLUMNS.length}, including box contents, specs and who measured each
+      IEM. Click a name for the full breakdown.
+    </p>
+  </section>
+
+  <section class="wrap notes">
+    <h2>Before you use it</h2>
+    <ul>
+      <li>Data built on {meta.built}. Prices and stock will have changed.</li>
+      {meta.disclaimers.map((d) => <li>{d}</li>)}
+      <li>
+        If you reuse it, please credit the measurers. They are listed on the <a href="/about">credits page</a>. How
+        each number is made is on the <a href="/how">method page</a>.
+      </li>
+    </ul>
+  </section>
+  <Overlays client:idle />
+</Base>
+
+<style>
+  .head {
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 6.5vw, 3.2rem);
+  }
+  .dl {
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .dl li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.8rem;
+  }
+  .hint {
+    margin-top: 0.6rem;
+  }
+  .notes {
+    margin-top: 3rem;
+  }
+  .notes ul {
+    max-width: 46rem;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+</style>
