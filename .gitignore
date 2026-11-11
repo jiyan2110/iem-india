@@ -1,0 +1,22 @@
+# Local only
+.DS_Store
+.claude/
+.env*
+portfolio/
+/HeadphoneZone_IEM_Value_Ranking.xlsx
+/IEM_India_Writeup.pdf
+
+# Site build output
+site/node_modules/
+site/dist/
+site/.astro/
+site/.vercel/
+site/PRD_PROMPT.md
+
+# Study: raw downloads and working files stay off the repo
+study/.venv/
+study/raw/
+study/debate/
+study/pdf/
+__pycache__/
+*.pyc
