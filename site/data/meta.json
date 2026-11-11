@@ -1,0 +1,77 @@
+{
+ "built": "2026-11-11",
+ "scope": "New wired IEMs sold in India at or under Rs 10,000; Type-C and 3.5mm ranked separately; sold-out kept unless discontinued.",
+ "counts": {
+  "listed": 415,
+  "type_c": 95,
+  "3_5mm": 320,
+  "removed_discontinued": 19,
+  "measured": 345,
+  "proxy": 15,
+  "buyer_beware": 55,
+  "in_stock": 210
+ },
+ "weights_default": {
+  "sound": 60,
+  "hardware": 30,
+  "box": 10
+ },
+ "formulas": {
+  "harman_score": "100.08 - 8.5*SD - 6.80*|slope| - 3.48*mean_abs_error (error vs Harman IE target, 20 Hz-10 kHz)",
+  "harman_adjusted": "harman_score - sqrt(24.4 / n_measurers); proxy -5; buyer beware = 25th percentile of measured (66.9)",
+  "sound_frac": "clip((harman_adjusted - 40) / (90 - 40), 0, 1)",
+  "hardware_frac": "points share: detachable 9, mic 6, easy to drive 4 (3.5mm) or DSP/EQ app 6 (Type-C); unknown items imputed at the average rate",
+  "box_frac": "points share: eartips 4, eartip variety 3, case 4, cable 2, adapter 2; unknown imputed at the average rate",
+  "score": "W_sound*sound_frac + W_hardware*hardware_frac + W_box*box_frac (weights sum to 100)",
+  "value_score": "percentile(score) - percentile(ln price), per plug, measured IEMs (in stock or sold out) in the top half by score only"
+ },
+ "key_numbers": {
+  "between_measurer_variance": 24.4,
+  "between_measurer_sd": 4.94,
+  "harman_vs_log_price_r2": {
+   "3.5mm": 0.001,
+   "Type-C": 0.008
+  },
+  "median_harman_3.5mm": {
+   "price_le_2000": 78.7,
+   "price_ge_7000": 79.2
+  },
+  "harman_listener_split": "about 72% prefer Harman-like tuning; about 28% prefer ~2 dB less bass and 1-2 dB more treble"
+ },
+ "sources": [
+  {
+   "name": "Olive, Welti & Khonsaripour, AES 2017 (papers 9840 / 9878)",
+   "type": "evidence",
+   "used_for": "Harman in-ear preference model and target"
+  },
+  {
+   "name": "Squig-Rank (github.com/PEQHUB/Squig-Rank)",
+   "type": "data",
+   "used_for": "per-measurement SD / slope / mean error from public squig.link databases (711-type couplers)"
+  },
+  {
+   "name": "Headphone Zone, The Audio Store, Concept Kart product feeds and pages",
+   "type": "data (store claims)",
+   "used_for": "prices, stock, specs, box contents"
+  },
+  {
+   "name": "Judge.me and Reddit policies; store robots.txt files",
+   "type": "evidence (docs)",
+   "used_for": "decisions on what not to collect"
+  }
+ ],
+ "exclusions": [
+  "Amazon (terms forbid scraping)",
+  "HiFiNage (robots.txt blocks AI crawlers)",
+  "Crinacle / graph.hangout.audio (raw data not public)",
+  "Crinacle ranking list, squig.link lists, IEMRanking.com (robots.txt blocks Claude)",
+  "Reddit (bulk collection needs approval; research outside its programme not allowed)",
+  "Store star ratings and reviews (dropped: about 10% coverage, fake-review risk)"
+ ],
+ "disclaimers": [
+  "Specs, sound tags and box contents are as claimed by the store, not verified.",
+  "Rigs, eartips and insertion depth change measurements; treat +/-3 points as noise.",
+  "'Sold out, status unclear' items may in fact be discontinued; there is no stock history.",
+  "Raw frequency-response curves are not redistributed; only derived numbers, with credit to each measurer."
+ ]
+}

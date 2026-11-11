@@ -1,0 +1,5 @@
+{
+  "extends": "astro/tsconfigs/base",
+  "compilerOptions": { "resolveJsonModule": true, "strict": false },
+  "include": ["src", ".astro/types.d.ts"]
+}

@@ -1,0 +1,154 @@
+[
+ {
+  "id": "7hz-aero-3-5mm",
+  "name": "7Hz Aero",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 84.8,
+  "price_inr": 890.0
+ },
+ {
+  "id": "kz-x-angelears-libra-3-5mm",
+  "name": "KZ x Angelears Libra",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 83.8,
+  "price_inr": 990.0
+ },
+ {
+  "id": "tripowin-x-hbb-kailua-3-5mm",
+  "name": "Tripowin x HBB Kailua",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 83.1,
+  "price_inr": 3990.0
+ },
+ {
+  "id": "kiwi-ears-canta-3-5mm",
+  "name": "Kiwi Ears Canta",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 79.8,
+  "price_inr": 5699.0
+ },
+ {
+  "id": "aful-magicone-3-5mm",
+  "name": "Aful MagicOne",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 78.5,
+  "price_inr": 8990.0
+ },
+ {
+  "id": "juzear-41t-3-5mm",
+  "name": "Juzear 41T",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 78.2,
+  "price_inr": 9490.0
+ },
+ {
+  "id": "kinera-celest-relentless-3-5mm",
+  "name": "Kinera Celest Relentless",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 76.3,
+  "price_inr": 7990.0
+ },
+ {
+  "id": "nicehck-f1-pro-3-5mm",
+  "name": "NiceHCK F1 Pro",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 75.0,
+  "price_inr": 5990.0
+ },
+ {
+  "id": "joyodio-shine-3-5mm",
+  "name": "JoyOdio Shine",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 72.9,
+  "price_inr": 3490.0
+ },
+ {
+  "id": "kinera-celest-plutus-beast-3-5mm",
+  "name": "Kinera Celest Plutus Beast",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 72.2,
+  "price_inr": 6490.0
+ },
+ {
+  "id": "twistura-sigma-3-5mm",
+  "name": "Twistura Sigma",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 72.1,
+  "price_inr": 4490.0
+ },
+ {
+  "id": "nd-nice-3-5mm",
+  "name": "ND Nice",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 70.8,
+  "price_inr": 1290.0
+ },
+ {
+  "id": "rose-technics-quietsea-3-5mm",
+  "name": "Rose Technics QuietSea",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 68.8,
+  "price_inr": 3490.0
+ },
+ {
+  "id": "final-e500-3-5mm",
+  "name": "Final E500",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 65.5,
+  "price_inr": 1499.0
+ },
+ {
+  "id": "final-e500-type-c",
+  "name": "Final E500",
+  "plug": "Type-C",
+  "availability_note": "store clearance tag",
+  "harman_score": 65.5,
+  "price_inr": 2499.0
+ },
+ {
+  "id": "audiocular-lex-type-c",
+  "name": "Audiocular LEX",
+  "plug": "Type-C",
+  "availability_note": "store clearance tag",
+  "harman_score": 64.1,
+  "price_inr": 1149.0
+ },
+ {
+  "id": "nd-dd3-3-5mm",
+  "name": "ND DD3",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 59.5,
+  "price_inr": 790.0
+ },
+ {
+  "id": "kz-zat-3-5mm",
+  "name": "KZ ZAT",
+  "plug": "3.5mm",
+  "availability_note": "store clearance tag",
+  "harman_score": 55.2,
+  "price_inr": 5990.0
+ },
+ {
+  "id": "tanchjim-ola-3-5mm",
+  "name": "Tanchjim Ola",
+  "plug": "3.5mm",
+  "availability_note": "newer version in stock: Tanchjim Ola II",
+  "harman_score": 48.0,
+  "price_inr": 3699.0
+ }
+]
