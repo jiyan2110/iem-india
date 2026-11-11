@@ -2,7 +2,7 @@
 
 Every beginner wired earphone you can buy in India under ₹10,000, on one chart. All 415 of them. Go poke at it.
 
-**Play here:** _link going up shortly_
+**Play here:** [iem-india.vercel.app](https://iem-india.vercel.app)
 
 ## Things to try
 
