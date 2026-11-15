@@ -3,3 +3,6 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/jiyanbhatt/';
 
 export const SITE_TITLE = 'IEM India';
 export const AUTHOR = 'Jiyan Bhatt';
+
+// Used for link previews, which need absolute addresses.
+export const SITE_URL = 'https://iem-india.vercel.app';

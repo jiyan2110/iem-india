@@ -2,7 +2,7 @@
 import '@fontsource-variable/fraunces/opsz.css';
 import '@fontsource-variable/instrument-sans/wght.css';
 import '../styles/global.css';
-import { PDF_URL, LINKEDIN_URL, SITE_TITLE, AUTHOR } from '../lib/site';
+import { PDF_URL, LINKEDIN_URL, SITE_TITLE, SITE_URL, AUTHOR } from '../lib/site';
 import { meta } from '../lib/data';
 
 interface Props {
@@ -34,6 +34,17 @@ const nav = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:url" content={SITE_URL + Astro.url.pathname} />
+    <meta property="og:image" content={SITE_URL + '/preview.png'} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A scatter chart of price against sound score for wired IEMs sold in India, with the cheap and great-sounding corner highlighted."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={SITE_URL + '/preview.png'} />
     <meta name="theme-color" content="#f5efe3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#15120e" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

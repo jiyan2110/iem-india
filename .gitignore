@@ -20,3 +20,6 @@ study/debate/
 study/pdf/
 __pycache__/
 *.pyc
+
+# Post drafts, local only
+linkedin/
