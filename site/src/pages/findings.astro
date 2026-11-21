@@ -16,7 +16,7 @@ const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
     <p class="eyebrow">Findings</p>
     <h1>What the chart says, in words.</h1>
     <p class="lede">
-      The <a href="/">chart</a> lets you look for yourself. This page is the short version of what I saw in it.
+      The <a href="/chart">chart</a> lets you look for yourself. This page is the short version of what I saw in it.
     </p>
 
     <section class="block">
@@ -42,7 +42,7 @@ const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
             ))
           }
         </ul>
-        <p><a class="btn sm ghost" href="/">See price against sound on the chart</a></p>
+        <p><a class="btn sm ghost" href="/chart">See price against sound on the chart</a></p>
       </div>
     </section>
 
@@ -100,7 +100,7 @@ const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
           <strong>Not everyone likes the target.</strong> In the Harman research, {meta.key_numbers.harman_listener_split}.
           If that sounds like you, favour IEMs with a slightly positive tilt.
         </p>
-        <p><a class="btn sm ghost" href="/#x=tilt">See warm against bright on the chart</a></p>
+        <p><a class="btn sm ghost" href="/chart#x=tilt">See warm against bright on the chart</a></p>
       </div>
     </section>
 
@@ -195,7 +195,7 @@ const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
   .meter {
     display: block;
     height: 6px;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--grid);
     margin-top: 0.3rem;
     max-width: 14rem;
@@ -203,7 +203,7 @@ const pairs = PLUGS.map((p) => ({ plug: p, ...headlinePair(p) }));
   .meter i {
     display: block;
     height: 100%;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--accent);
   }
   .three {

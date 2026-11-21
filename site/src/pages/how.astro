@@ -552,7 +552,7 @@ const no = (id: string) => String(steps.findIndex((s) => s[0] === id) + 1).padSt
     top: 2.9rem;
     width: 12px;
     height: 12px;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--accent);
     box-shadow: 0 0 0 4px var(--bg);
   }
@@ -716,7 +716,7 @@ const no = (id: string) => String(steps.findIndex((s) => s[0] === id) + 1).padSt
     text-transform: uppercase;
     color: var(--muted);
     border: 1px dashed var(--muted);
-    border-radius: 999px;
+    border-radius: var(--r);
     padding: 0.2rem 0.7rem;
   }
   .debate {

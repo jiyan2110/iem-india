@@ -686,8 +686,8 @@
   }
   .end.good b {
     padding: 0 0.35rem;
-    border-radius: 4px;
-    background: var(--accent-soft);
+    background: var(--accent-ink);
+    color: var(--bg);
   }
   .ydir .end.good b {
     padding: 0.35rem 0;
@@ -754,7 +754,7 @@
   }
   .shade {
     background: var(--accent);
-    opacity: 0.12;
+    opacity: 0.08;
     transition: all 0.4s ease;
   }
   .band {
@@ -893,7 +893,7 @@
     width: 17px;
     height: 17px;
     margin: -8.5px 0 0 -8.5px;
-    border: 2px dashed var(--teal);
+    border: 2px dashed var(--accent);
   }
 
   .q {
@@ -918,13 +918,16 @@
     display: inline-block;
     margin-top: 0.1rem;
     padding: 0 0.4rem;
-    border-radius: 999px;
-    background: var(--ink);
+    border-radius: 0;
+    background: var(--accent-ink);
     color: var(--bg);
     font-style: normal;
     font-size: 0.68rem;
   }
   .q.best {
+    color: var(--accent-ink);
+  }
+  .q.best b {
     color: var(--accent-ink);
   }
   .q.tl {
@@ -1037,8 +1040,9 @@
     background: var(--raised);
     border: 1px solid var(--line);
     border-left: 0;
-    border-radius: 0 16px 16px 0;
-    box-shadow: var(--shadow), 10px 0 30px rgb(0 0 0 / 0.12);
+    border-radius: 0;
+    border-color: var(--ink);
+    box-shadow: none;
     transition:
       transform 0.3s ease,
       visibility 0.3s;
@@ -1091,7 +1095,7 @@
     width: 2.75rem;
     height: 2.75rem;
     border: 0;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: none;
   }
   .count {
@@ -1105,28 +1109,29 @@
   }
   .plugs {
     display: flex;
-    padding: 3px;
-    gap: 2px;
-    border: 1.5px solid var(--ink);
-    border-radius: 999px;
+    padding: 0;
+    gap: 0;
+    border: 1px solid var(--ink);
+    border-radius: var(--r);
     background: var(--surface);
   }
   .plugs button {
     flex: 1;
     border: 0;
     background: none;
-    border-radius: 999px;
+    border-radius: 0;
     min-height: 2.6rem;
     padding: 0.3rem 0.5rem;
     font-family: var(--display);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
     font-weight: 650;
     white-space: nowrap;
     color: var(--muted);
   }
   .plugs button[aria-pressed='true'] {
-    background: var(--accent);
-    color: #1d1a16;
+    background: var(--ink);
+    color: var(--bg);
   }
   .plugs .n {
     font-family: var(--body);
@@ -1142,6 +1147,7 @@
   }
   .group h2 {
     margin: 0;
+    letter-spacing: 0.1em !important;
     font-family: var(--body);
     font-size: 0.7rem;
     font-weight: 700;
@@ -1179,7 +1185,7 @@
     min-height: 2.25rem;
     padding: 0 0.7rem 0 0.5rem;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     background: none;
     font-size: 0.8rem;
     font-weight: 600;
@@ -1205,6 +1211,9 @@
     background: var(--ink);
     color: var(--bg);
   }
+  .chip {
+    border-radius: 0 !important;
+  }
   .legend {
     display: flex;
     flex-wrap: wrap;
@@ -1217,7 +1226,7 @@
     min-height: 2.25rem;
     padding: 0.1rem 0.65rem;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--surface);
     font-size: 0.8rem;
     font-weight: 600;

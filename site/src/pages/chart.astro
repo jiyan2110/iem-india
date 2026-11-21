@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Canvas from '../components/Canvas.svelte';
+import Overlays from '../components/Overlays.svelte';
+import { meta } from '../lib/data';
+
+const c = meta.counts;
+---
+
+<Base
+  title="IEM India: every beginner IEM on one chart"
+  description={`${c.listed} wired IEMs sold in India under ₹10,000 on one chart you can re-draw: pick the plug, pick both axes, and see which ones are worth the money.`}
+  bare
+>
+  <Canvas client:load />
+  <Overlays client:idle />
+</Base>

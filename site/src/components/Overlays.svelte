@@ -481,7 +481,7 @@
     height: 2.75rem;
     display: grid;
     place-items: center;
-    border-radius: 999px;
+    border-radius: var(--r);
     border: 1px solid var(--line);
     background: var(--surface);
   }
@@ -524,7 +524,7 @@
     text-transform: uppercase;
     color: var(--muted);
     border: 1px dashed var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     padding: 0.1rem 0.5rem;
     margin-left: 0.3rem;
     white-space: nowrap;
@@ -571,14 +571,14 @@
   }
   .pbar {
     height: 0.8rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--grid);
     overflow: hidden;
   }
   .pbar i {
     display: block;
     height: 100%;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--accent);
   }
   .pbar.hardware i {
@@ -610,7 +610,7 @@
     display: block;
     position: relative;
     height: 0.7rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: linear-gradient(90deg, var(--accent), var(--grid) 50%, var(--teal));
   }
   .tilt .track::after {
@@ -627,7 +627,7 @@
     top: 50%;
     width: 1rem;
     height: 1rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--bg);
     border: 3px solid var(--ink);
     transform: translate(-50%, -50%);
@@ -649,7 +649,7 @@
     display: inline-block;
     padding: 0.25rem 0.6rem;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     font-size: 0.8rem;
     text-decoration: none;
     background: var(--surface);
@@ -709,7 +709,7 @@
     gap: 0.1rem;
     padding-left: 0.6rem;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     font-size: 0.8rem;
     font-weight: 600;
     white-space: nowrap;
@@ -726,7 +726,7 @@
     background: none;
     display: grid;
     place-items: center;
-    border-radius: 999px;
+    border-radius: var(--r);
   }
   .tray .btn {
     flex: none;
@@ -769,7 +769,7 @@
     text-transform: uppercase;
     color: var(--teal);
     border: 1px solid var(--teal);
-    border-radius: 999px;
+    border-radius: var(--r);
     padding: 0 0.4rem;
     margin-top: 0.15rem;
   }

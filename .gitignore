@@ -23,3 +23,7 @@ __pycache__/
 
 # Post drafts, local only
 linkedin/
+
+# Local only
+preview-shots/
+jay-ranking/

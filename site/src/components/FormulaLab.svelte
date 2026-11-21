@@ -103,7 +103,7 @@
   .chip {
     border: 1px solid var(--line);
     background: var(--bg);
-    border-radius: 999px;
+    border-radius: var(--r);
     padding: 0.25rem 0.7rem;
     min-height: 2.1rem;
     font-size: 0.82rem;

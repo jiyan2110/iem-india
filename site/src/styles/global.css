@@ -1,46 +1,26 @@
 :root {
-  color-scheme: light;
-  --bg: #f5efe3;
-  --surface: #fffaf0;
+  color-scheme: light only;
+  --bg: #f6f1e7;
+  --surface: #f6f1e7;
   --raised: #ffffff;
-  --ink: #1d1a16;
-  --muted: #645c50;
-  --line: #d8cdb9;
-  --grid: #e6dccb;
-  --accent: #e2820a;
-  --accent-ink: #9a4300;
-  --accent-soft: #f9e3bf;
-  --teal: #0b6b6b;
-  --teal-soft: #cfe7e3;
-  --warn: #a12a1c;
-  --warn-soft: #f6d9d2;
-  --dot: #8d8271;
-  --shadow: 0 1px 2px rgb(60 40 10 / 0.08), 0 8px 24px rgb(60 40 10 / 0.08);
-  --display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --ink: #161616;
+  --muted: #5f5a52;
+  --line: #d8d0c2;
+  --grid: #e9e2d5;
+  --accent: #e8432c;
+  --accent-ink: #b9301c;
+  --accent-soft: #f8ddd5;
+  --teal: #161616;
+  --teal-soft: #e9e2d5;
+  --warn: #b3261e;
+  --warn-soft: #f6dcd8;
+  --dot: #4d4943;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 10px 30px rgb(0 0 0 / 0.08);
+  --display: 'Bricolage Grotesque Variable', 'Helvetica Neue', Arial, sans-serif;
   --body: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --wrap: 1120px;
-  --r: 10px;
-}
-
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --bg: #15120e;
-  --surface: #1e1a15;
-  --raised: #27221b;
-  --ink: #f1e9da;
-  --muted: #b0a696;
-  --line: #3b342a;
-  --grid: #2a251e;
-  --accent: #ffb224;
-  --accent-ink: #ffbe47;
-  --accent-soft: #3d2c0c;
-  --teal: #62d2c6;
-  --teal-soft: #12332f;
-  --warn: #ff9d8a;
-  --warn-soft: #42201a;
-  --dot: #7d7465;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  --r: 4px;
 }
 
 *,
@@ -70,9 +50,9 @@ h1,
 h2,
 h3 {
   font-family: var(--display);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
   margin: 0 0 0.5em;
   text-wrap: balance;
 }
@@ -180,8 +160,8 @@ code,
   gap: 0.4rem;
   min-height: 2.75rem;
   padding: 0.5rem 1rem;
-  border-radius: 999px;
-  border: 1.5px solid var(--ink);
+  border-radius: var(--r);
+  border: 1px solid var(--ink);
   background: var(--ink);
   color: var(--bg);
   font-weight: 600;
@@ -205,7 +185,7 @@ code,
   display: inline-flex;
   padding: 3px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--r);
   background: var(--surface);
   gap: 2px;
   flex-wrap: wrap;
@@ -213,7 +193,7 @@ code,
 .seg button {
   border: 0;
   background: none;
-  border-radius: 999px;
+  border-radius: var(--r);
   padding: 0.4rem 0.85rem;
   min-height: 2.4rem;
   font-weight: 600;
@@ -229,7 +209,7 @@ code,
   align-items: center;
   gap: 0.3rem;
   padding: 0.1rem 0.5rem;
-  border-radius: 999px;
+  border-radius: var(--r);
   border: 1px solid var(--line);
   font-size: 0.75rem;
   font-weight: 600;
@@ -278,12 +258,8 @@ input[type='checkbox'] {
   height: 1.05rem;
 }
 
-/* Graph-paper texture used behind charts */
 .paper {
   background-color: var(--surface);
-  background-image: linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 24px 24px;
 }
 
 @media (prefers-reduced-motion: reduce) {

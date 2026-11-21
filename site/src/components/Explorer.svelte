@@ -328,17 +328,13 @@
     width: 100%;
     min-height: 2.75rem;
     padding: 0 1rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     border: 1px solid var(--line);
     background: var(--surface);
   }
   .weights {
-    position: sticky;
-    top: 3.5rem;
-    z-index: 20;
-    padding: 0.6rem 0.8rem 0.5rem;
+    padding: 0.7rem 0.8rem 0.6rem;
     background: var(--raised);
-    box-shadow: var(--shadow);
   }
   .whead {
     display: flex;
@@ -402,7 +398,7 @@
     flex: none;
     border: 1px solid var(--line);
     background: var(--surface);
-    border-radius: 999px;
+    border-radius: var(--r);
     padding: 0.25rem 0.7rem;
     min-height: 2rem;
     font-size: 0.8rem;
@@ -443,7 +439,7 @@
     margin-left: 0.5rem;
     font-size: 0.75rem;
     padding: 0.05rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--accent-soft);
     color: var(--accent-ink);
   }
@@ -501,7 +497,7 @@
   }
   .sort select {
     min-height: 2.4rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     border: 1px solid var(--line);
     background: var(--surface);
     padding: 0 0.7rem;
@@ -586,7 +582,7 @@
   .bar {
     display: flex;
     height: 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--grid);
     overflow: hidden;
     margin-top: 0.1rem;
@@ -613,7 +609,7 @@
   .cmp {
     border: 1px solid var(--line);
     background: var(--surface);
-    border-radius: 999px;
+    border-radius: var(--r);
     min-height: 2rem;
     padding: 0.15rem 0.6rem;
     font-size: 0.75rem;

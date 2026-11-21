@@ -93,7 +93,7 @@
     width: min(16rem, 70vw);
     padding: 0.3rem 0.8rem;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r);
     background: var(--surface);
   }
   .count {

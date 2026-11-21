@@ -19,7 +19,6 @@
   }
   .n {
     font-weight: 400;
-    opacity: 0.75;
     font-size: 0.85em;
   }
 </style>

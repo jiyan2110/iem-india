@@ -1,17 +1,108 @@
 ---
-import Base from '../layouts/Base.astro';
-import Canvas from '../components/Canvas.svelte';
-import Overlays from '../components/Overlays.svelte';
-import { meta } from '../lib/data';
+// The homepage: the IEM India story told as one scrolling piece. The full chart lives at /chart.
+import '@fontsource-variable/bricolage-grotesque/index.css';
+import '@fontsource-variable/instrument-sans/wght.css';
+import Story from '../components/Story.svelte';
+import { SITE_URL } from '../lib/site';
 
-const c = meta.counts;
+const title = 'Does paying more buy better sound? · IEM India';
+const description =
+  '281 earphones sold in India under ₹10,000, scored from lab measurements. Scroll to see what the money buys, then find your pair.';
 ---
 
-<Base
-  title="IEM India: every beginner IEM on one chart"
-  description={`${c.listed} wired IEMs sold in India under ₹10,000 on one chart you can re-draw: pick the plug, pick both axes, and see which ones are worth the money.`}
-  bare
->
-  <Canvas client:load />
-  <Overlays client:idle />
-</Base>
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light only" />
+    <meta name="theme-color" content="#f6f1e7" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={SITE_URL + '/'} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="IEM India" />
+    <meta property="og:url" content={SITE_URL + '/'} />
+    <meta property="og:image" content={SITE_URL + '/preview.png'} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={SITE_URL + '/preview.png'} />
+    <script is:inline>
+      // Links shared before the move (for example /#x=tilt or /#iem=...) belonged to the chart, which now lives at /chart.
+      if (/(^|[#&])(x|y|p|iem|c)=/.test(location.hash.slice(1))) location.replace('/chart' + location.hash);
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <nav class="top">
+      <a href="/" class="mark">IEM India</a>
+      <a href="/chart" class="skip">Skip to the full chart →</a>
+    </nav>
+    <main><Story client:load /></main>
+    <footer class="end">
+      <p>
+        Made by <a href="https://www.linkedin.com/in/jiyanbhatt/">Jiyan Bhatt</a>. Sound scores from independent measurers on
+        squig.link, scored with the Harman in-ear model. <a href="/about">Credits</a>.
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    color-scheme: light only;
+  }
+  html,
+  body {
+    margin: 0;
+    background: #f6f1e7;
+    color: #161616;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  .top {
+    position: fixed;
+    z-index: 20;
+    inset: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    font-family: 'Instrument Sans Variable', system-ui, sans-serif;
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+  .top a {
+    pointer-events: auto;
+    color: #161616;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .top .mark {
+    font-family: 'Bricolage Grotesque Variable', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .top .skip {
+    padding: 0.35rem 0.7rem;
+    border-bottom: 2px solid #e8432c;
+  }
+  .end {
+    padding: 3rem 1.25rem 4rem;
+    font-family: 'Instrument Sans Variable', system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: #5f5a52;
+    text-align: center;
+  }
+  .end a {
+    color: #161616;
+  }
+</style>
